@@ -1,87 +1,98 @@
-/*
-    This sketch sends a message to a TCP server
+/*---------------------------------------------------------------------------------------------
 
-*/
+  Open Sound Control (OSC) library for the ESP8266/ESP32
 
+  Example for receiving open sound control (OSC) messages on the ESP8266/ESP32
+  Send integers '0' or '1' to the address "/led" to turn on/off the built-in LED of the esp8266.
+
+  This example code is in the public domain.
+
+--------------------------------------------------------------------------------------------- */
+#ifdef ESP8266
+#include <ESP8266WiFi.h>
+#else
 #include <WiFi.h>
-#include <WiFiMulti.h>
+#endif
+#include <WiFiUdp.h>
+#include <OSCMessage.h>
+#include <OSCBundle.h>
+#include <OSCData.h>
 
-WiFiMulti WiFiMulti;
+char ssid[] = "MyAltice ff1637";          // your network SSID (name)
+char pass[] = "82-orchid-5366";                    // your network password
 
-void setup()
-{
+// A UDP instance to let us send and receive packets over UDP
+WiFiUDP Udp;
+const unsigned int localPort = 8888;        // local port to listen for UDP packets (here's where we send the packets)
+
+
+OSCErrorCode error;
+unsigned int ledState = LOW;              // LOW means led is *on*
+
+#ifndef BUILTIN_LED
+#ifdef LED_BUILTIN
+#define BUILTIN_LED LED_BUILTIN
+#else
+#define BUILTIN_LED 13
+#endif
+#endif
+
+void setup() {
+  pinMode(BUILTIN_LED, OUTPUT);
+  digitalWrite(BUILTIN_LED, ledState);    // turn *on* led
+
   Serial.begin(115200);
-  delay(10);
 
-  // We start by connecting to a WiFi network
-  WiFiMulti.addAP("SSID", "passpasspass");
-
+  // Connect to WiFi network
   Serial.println();
   Serial.println();
-  Serial.print("Waiting for WiFi... ");
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, pass);
 
-  while (WiFiMulti.run() != WL_CONNECTED) {
-    Serial.print(".");
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
+    Serial.print(".");
   }
-
   Serial.println("");
+
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
-  delay(500);
+  Serial.println("Starting UDP");
+  Udp.begin(localPort);
+  Serial.print("Local port: ");
+#ifdef ESP32
+  Serial.println(localPort);
+#else
+  Serial.println(Udp.localPort());
+#endif
+
 }
 
 
-void loop()
-{
-  //    const uint16_t port = 80;
-  //    const char * host = "192.168.1.1"; // ip or dns
-  const uint16_t port = 1337;
-  const char * host = "192.168.1.10"; // ip or dns
+void led(OSCMessage &msg) {
+  ledState = msg.getInt(0);
+  digitalWrite(BUILTIN_LED, ledState);
+  Serial.print("/led: ");
+  Serial.println(ledState);
+}
 
-  Serial.print("Connecting to ");
-  Serial.println(host);
+void loop() {
+  OSCMessage msg;
+  int size = Udp.parsePacket();
 
-  // Use WiFiClient class to create TCP connections
-  WiFiClient client;
-
-  if (!client.connect(host, port)) {
-    Serial.println("Connection failed.");
-    Serial.println("Waiting 5 seconds before retrying...");
-    delay(5000);
-    return;
+  if (size > 0) {
+    while (size--) {
+      msg.fill(Udp.read());
+    }
+    if (!msg.hasError()) {
+      msg.dispatch("/led", led);
+    } else {
+      error = msg.getError();
+      Serial.print("error: ");
+      Serial.println(error);
+    }
   }
-
-  // This will send a request to the server
-  //uncomment this line to send an arbitrary string to the server
-  //client.print("Send this data to the server");
-  //uncomment this line to send a basic document request to the server
-  client.print("GET /index.html HTTP/1.1\n\n");
-
-  int maxloops = 0;
-
-  //wait for the server's reply to become available
-  while (!client.available() && maxloops < 1000)
-  {
-    maxloops++;
-    delay(1); //delay 1 msec
-  }
-  if (client.available() > 0)
-  {
-    //read back one line from the server
-    String line = client.readStringUntil('\r');
-    Serial.println(line);
-  }
-  else
-  {
-    Serial.println("client.available() timed out ");
-  }
-
-  Serial.println("Closing connection.");
-  client.stop();
-
-  Serial.println("Waiting 5 seconds before restarting...");
-  delay(5000);
 }
