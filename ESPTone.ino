@@ -73,7 +73,7 @@ void setup() {
 
 
 void led(OSCMessage &msg) {
-  ledState = msg.getInt(0);
+  ledState = msg.getFloat(0);
   digitalWrite(BUILTIN_LED, ledState);
   Serial.print("/led: ");
   Serial.println(ledState);
