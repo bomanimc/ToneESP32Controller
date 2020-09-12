@@ -13,11 +13,13 @@
     "gatsby-plugin-sharp": "^2.6.32",
     "gatsby-source-filesystem": "^2.3.28",
     "gatsby-transformer-sharp": "^2.5.14",
+    "lodash": "^4.17.20",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-helmet": "^6.1.0",
-    "styled-components": "^5.2.0"
+    "styled-components": "^5.2.0",
+    "tone": "^14.7.39"
   },
   "devDependencies": {
     "prettier": "2.1.1"
