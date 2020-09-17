@@ -6,17 +6,18 @@ import SequencerTrack from './sequencerTrack';
 
 const StepSequencer = () => {
   const numBeats = 8;
+  const soundFiles = [
+    "A1.mp3",
+    "A2.mp3",
+  ];
+
   const loop = useRef(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [beatState, setBeatState] = useState([Array(numBeats).fill(false)]);
-
-  const soundFiles = {
-    A1: "A1.mp3",
-    A2: "A2.mp3",
-  };
+  const [playerFiles, setPlayerFiles] = useState([soundFiles[0]]);
   
   const keys = new Players({
-      urls: soundFiles, 
+      urls: Object.assign({}, playerFiles), 
       baseUrl: "https://tonejs.github.io/audio/casio/",
       fadeOut: "64n",
       onload: () => {
@@ -31,13 +32,11 @@ const StepSequencer = () => {
       loop.current.dispose();
     }
 
-    const soundFileKeys = Object.keys(soundFiles);
-
     loop.current = new Sequence((time, col) => {
       beatState.map((track, row) => {
         if (track[col]) {
           console.log(`Col: ${col}; Row: ${row}; Time: ${time}`);
-          keys.player(soundFileKeys[row % soundFileKeys.length]).start(Time(), 0, "16t", 0);
+          keys.player(row).start(Time(), 0, "16t", 0);
         }
       });
     }, [...new Array(numBeats)].map((_, i) => i), '8n').start(0);
@@ -61,7 +60,9 @@ const StepSequencer = () => {
 
   const addTrack = () => {
     const newBeatState = cloneDeep(beatState);
+    const newPlayerFiles = cloneDeep(playerFiles);
     setBeatState([...newBeatState, Array(numBeats).fill(false)])
+    setPlayerFiles([...newPlayerFiles, soundFiles[Math.floor(Math.random() * soundFiles.length)]]);
   }
 
   return (
