@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from 'styled-components';
 import { Transport, Time, Players, Sequence } from "tone";
 import cloneDeep from 'lodash/cloneDeep';
+import SequencerTrack from './sequencerTrack';
 
 const StepSequencer = () => {
   const numBeats = 8;
@@ -51,10 +52,10 @@ const StepSequencer = () => {
   }
 
   const noteClick = (e) => {
-    const noteState = e.target.checked;
     const {col, row} = e.target.dataset;
+    const noteState = beatState[row][col];
     const newBeatState = cloneDeep(beatState);
-    newBeatState[row][col] = noteState;
+    newBeatState[row][col] = !noteState;
     setBeatState(newBeatState)
   }
 
@@ -71,18 +72,7 @@ const StepSequencer = () => {
       <StepSequencer.BeatGrid>
         {
           beatState.map((track, trackIdx) => (
-            <StepSequencer.Track key={trackIdx}>
-              {track.map((isChecked, idx) => (
-                <input 
-                  type="checkbox" 
-                  onChange={noteClick} 
-                  value={isChecked} 
-                  data-col={idx}
-                  data-row={trackIdx}
-                  key={idx} 
-                />
-              ))}
-            </StepSequencer.Track>
+            <SequencerTrack key={trackIdx} track={track} row={trackIdx} noteClick={noteClick} numBeats={numBeats} />
           ))
         }
       </StepSequencer.BeatGrid>
@@ -91,15 +81,10 @@ const StepSequencer = () => {
 }
 
 StepSequencer.BeatGrid = styled.div`
-  display: flex;
   margin: 2rem;
-  flex-direction: column;
+  border: 2px solid white;
+  border-radius: 0.5rem;
+  display: inline-block;
 `;
-
-StepSequencer.Track = styled.div`
-  display: flex;
-  margin-bottom: 1rem;
-`;
-
 
 export default StepSequencer;
