@@ -5,6 +5,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import SequencerTrack from './sequencerTrack';
 import Play from '../assets/play.svg';
 import Stop from '../assets/stop.svg';
+import PlayPauseButton from "./PlayPause";
 
 const StepSequencer = () => {
   const numBeats = 8;
@@ -70,12 +71,7 @@ const StepSequencer = () => {
   return (
     <div>
       <StepSequencer.ButtonControls>
-        <StepSequencer.Play disabled={!isLoaded} onClick={play}>
-          <StepSequencer.PlayIcon />
-        </StepSequencer.Play>
-        <StepSequencer.Stop disabled={!isLoaded} onClick={stop}>
-          <StepSequencer.StopIcon />
-        </StepSequencer.Stop>
+        <PlayPauseButton disabled={!isLoaded} play={play} stop={stop} />
         <button disabled={!isLoaded} onClick={addTrack}>Add Track</button>
       </StepSequencer.ButtonControls>
       <div>
@@ -103,41 +99,6 @@ StepSequencer.ButtonControls = styled.div`
   button {
     margin-right: 0.5rem;
   }
-`;
-
-StepSequencer.Play = styled.button`
-  background: transparent;
-  border: 2px solid white;
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 5rem;
-  width: 5rem;
-  padding-left: 1.3125rem;
-`;
-
-StepSequencer.PlayIcon = styled(Play)`
-  transform: rotate(90deg);
-  fill: white;
-  height: 50%;
-`;
-
-StepSequencer.Stop = styled.button`
-  background: transparent;
-  border: 2px solid white;
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 5rem;
-  width: 5rem;
-`;
-
-StepSequencer.StopIcon = styled(Stop)`
-  transform: rotate(90deg);
-  fill: white;
-  height: 50%;
 `;
 
 export default StepSequencer;
