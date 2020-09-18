@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { Transport, Time, Players, Sequence } from "tone";
 import cloneDeep from 'lodash/cloneDeep';
 import SequencerTrack from './sequencerTrack';
+import Play from '../assets/play.svg';
+import Stop from '../assets/stop.svg';
 
 const StepSequencer = () => {
   const numBeats = 8;
@@ -67,25 +69,75 @@ const StepSequencer = () => {
 
   return (
     <div>
-      <button disabled={!isLoaded} onClick={play}>Play</button>
-      <button disabled={!isLoaded} onClick={stop}>Stop</button>
-      <button disabled={!isLoaded} onClick={addTrack}>Add Track</button>
-      <StepSequencer.BeatGrid>
-        {
-          beatState.map((track, trackIdx) => (
-            <SequencerTrack key={trackIdx} track={track} row={trackIdx} noteClick={noteClick} numBeats={numBeats} />
-          ))
-        }
-      </StepSequencer.BeatGrid>
+      <StepSequencer.ButtonControls>
+        <StepSequencer.Play disabled={!isLoaded} onClick={play}>
+          <StepSequencer.PlayIcon />
+        </StepSequencer.Play>
+        <StepSequencer.Stop disabled={!isLoaded} onClick={stop}>
+          <StepSequencer.StopIcon />
+        </StepSequencer.Stop>
+        <button disabled={!isLoaded} onClick={addTrack}>Add Track</button>
+      </StepSequencer.ButtonControls>
+      <div>
+        <StepSequencer.BeatGrid>
+          {
+            beatState.map((track, trackIdx) => (
+              <SequencerTrack key={trackIdx} track={track} row={trackIdx} noteClick={noteClick} numBeats={numBeats} />
+            ))
+          }
+        </StepSequencer.BeatGrid>
+      </div>
     </div>
   );
 }
 
 StepSequencer.BeatGrid = styled.div`
-  margin: 2rem;
+  margin: 0.5rem 0;
   border: 2px solid white;
   border-radius: 0.5rem;
   display: inline-block;
+`;
+
+StepSequencer.ButtonControls = styled.div`
+  display: flex;
+  button {
+    margin-right: 0.5rem;
+  }
+`;
+
+StepSequencer.Play = styled.button`
+  background: transparent;
+  border: 2px solid white;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5rem;
+  width: 5rem;
+  padding-left: 1.3125rem;
+`;
+
+StepSequencer.PlayIcon = styled(Play)`
+  transform: rotate(90deg);
+  fill: white;
+  height: 50%;
+`;
+
+StepSequencer.Stop = styled.button`
+  background: transparent;
+  border: 2px solid white;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5rem;
+  width: 5rem;
+`;
+
+StepSequencer.StopIcon = styled(Stop)`
+  transform: rotate(90deg);
+  fill: white;
+  height: 50%;
 `;
 
 export default StepSequencer;

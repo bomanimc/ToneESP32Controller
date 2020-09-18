@@ -27,6 +27,7 @@ SequencerTrack.Container = styled.div`
 
 SequencerTrack.Title = styled.div`
   padding: 1rem;
+  display: none;
 `;
 
 SequencerTrack.NoteArea = styled.div`
@@ -38,7 +39,7 @@ SequencerTrack.NoteArea = styled.div`
 
 SequencerTrack.Note = styled.button`
   background: ${p => p.isSelected ? 'white' : 'transparent'};
-  border: 2px dashed white;
+  border: 2px dashed ${p => p.isSelected ? 'blue' : 'white'};
   border-radius: 50%;
   height: 4rem;
 `;
