@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import { Transport, Time, Players, Sequence } from "tone";
 import cloneDeep from 'lodash/cloneDeep';
 import SequencerTrack from './sequencerTrack';
-import Play from '../assets/play.svg';
-import Stop from '../assets/stop.svg';
 import PlayPauseButton from "./PlayPause";
 
 const StepSequencer = () => {
@@ -72,7 +70,6 @@ const StepSequencer = () => {
     <div>
       <StepSequencer.ButtonControls>
         <PlayPauseButton disabled={!isLoaded} play={play} stop={stop} />
-        <button disabled={!isLoaded} onClick={addTrack}>Add Track</button>
       </StepSequencer.ButtonControls>
       <div>
         <StepSequencer.BeatGrid>
@@ -82,6 +79,9 @@ const StepSequencer = () => {
             ))
           }
         </StepSequencer.BeatGrid>
+        <StepSequencer.AddTrack disabled={!isLoaded} onClick={addTrack}>
+          Add a new track!
+        </StepSequencer.AddTrack>
       </div>
     </div>
   );
@@ -99,6 +99,18 @@ StepSequencer.ButtonControls = styled.div`
   button {
     margin-right: 0.5rem;
   }
+`;
+
+StepSequencer.AddTrack = styled.button`
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid white;
+  border-radius: 0.5rem;
+  width: 100%;
+  color: white;
+  height: 2rem;
 `;
 
 export default StepSequencer;
