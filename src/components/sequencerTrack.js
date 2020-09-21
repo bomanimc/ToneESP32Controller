@@ -1,7 +1,7 @@
 import React from "react";
 import styled from 'styled-components';
 
-const SequencerTrack = ({track, row, noteClick, numBeats}) => {
+const SequencerTrack = ({track, row, noteClick, numBeats, currentCol}) => {
   return (
     <SequencerTrack.Container>
       <SequencerTrack.Title>Test</SequencerTrack.Title>
@@ -10,6 +10,7 @@ const SequencerTrack = ({track, row, noteClick, numBeats}) => {
           <SequencerTrack.Note
             onClick={noteClick}
             isSelected={isSelected}
+            isCurrentCol={idx === currentCol}
             data-col={idx}
             data-row={row}
             key={idx}
@@ -42,6 +43,12 @@ SequencerTrack.Note = styled.button`
   border: 2px dashed ${p => p.isSelected ? 'blue' : 'white'};
   border-radius: 50%;
   height: 4rem;
+  transition: box-shadow 0.3s ease;
+
+  ${p => p.isCurrentCol && `
+    transform: scale(1.1);
+    box-shadow: 3px 3px 3px blue;
+  `}
 `;
 
 export default SequencerTrack;

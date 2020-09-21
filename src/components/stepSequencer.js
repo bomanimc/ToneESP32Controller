@@ -17,6 +17,7 @@ const StepSequencer = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [beatState, setBeatState] = useState([Array(numBeats).fill(false)]);
   const [playerFiles, setPlayerFiles] = useState([soundFiles[0]]);
+  const [currentCol, setCurrentCol] = useState(0);
   
   const keys = new Players({
       urls: Object.assign({}, playerFiles), 
@@ -36,6 +37,7 @@ const StepSequencer = () => {
 
     loop.current = new Sequence((time, col) => {
       sendColumnData(col);
+      setCurrentCol(col);
       beatState.map((track, row) => {
         if (track[col]) {
           keys.player(row).start(Time(), 0, "16t", 0);
@@ -84,7 +86,7 @@ const StepSequencer = () => {
         <StepSequencer.BeatGrid>
           {
             beatState.map((track, trackIdx) => (
-              <SequencerTrack key={trackIdx} track={track} row={trackIdx} noteClick={noteClick} numBeats={numBeats} />
+              <SequencerTrack key={trackIdx} track={track} row={trackIdx} noteClick={noteClick} numBeats={numBeats} currentCol={currentCol} />
             ))
           }
         </StepSequencer.BeatGrid>
