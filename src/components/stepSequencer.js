@@ -84,6 +84,9 @@ const StepSequencer = () => {
       </StepSequencer.ButtonControls>
       <div>
         <StepSequencer.BeatGrid>
+          <StepSequencer.ColumnIndices numCols={numBeats}>
+            {Array(numBeats).fill(false).map((_, idx) => <StepSequencer.ColumnIndex>{idx}</StepSequencer.ColumnIndex>)}
+          </StepSequencer.ColumnIndices>
           {
             beatState.map((track, trackIdx) => (
               <SequencerTrack key={trackIdx} track={track} row={trackIdx} noteClick={noteClick} numBeats={numBeats} currentCol={currentCol} />
@@ -103,6 +106,18 @@ StepSequencer.BeatGrid = styled.div`
   border: 2px solid white;
   border-radius: 0.5rem;
   display: inline-block;
+`;
+
+StepSequencer.ColumnIndices = styled.div`
+  display: grid;
+  grid-template-columns: repeat(${p => p.numCols}, 4rem);
+  grid-gap: 1rem;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 2px solid white;
+`;
+
+StepSequencer.ColumnIndex = styled.span`
+  text-align: center;
 `;
 
 StepSequencer.ButtonControls = styled.div`
