@@ -4,6 +4,7 @@ import { Transport, Time, Players, Sequence } from "tone";
 import cloneDeep from 'lodash/cloneDeep';
 import SequencerTrack from './sequencerTrack';
 import PlayPauseButton from "./PlayPause";
+import IPAddress from "./ipAddress";
 
 const StepSequencer = () => {
   const numBeats = 8;
@@ -34,14 +35,21 @@ const StepSequencer = () => {
     }
 
     loop.current = new Sequence((time, col) => {
+      sendColumnData(col);
       beatState.map((track, row) => {
         if (track[col]) {
-          console.log(`Col: ${col}; Row: ${row}; Time: ${time}`);
           keys.player(row).start(Time(), 0, "16t", 0);
         }
       });
     }, [...new Array(numBeats)].map((_, i) => i), '8n').start(0);
   }, [keys, beatState]);
+
+  const extractColumn = (arr, column) => arr.map(x => x[column]);
+
+  const sendColumnData = (col) => {
+    console.log('Col', col);
+    console.log('Extract Col', extractColumn(beatState, col));
+  }
 
   const play = () => {
     Transport.start();
@@ -70,6 +78,7 @@ const StepSequencer = () => {
     <div>
       <StepSequencer.ButtonControls>
         <PlayPauseButton disabled={!isLoaded} play={play} stop={stop} />
+        <IPAddress/>
       </StepSequencer.ButtonControls>
       <div>
         <StepSequencer.BeatGrid>
