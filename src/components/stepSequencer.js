@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import styled from 'styled-components';
 import { Transport, Players, Sequence } from "tone";
 import cloneDeep from 'lodash/cloneDeep';
 import SequencerTrack from './sequencerTrack';
 import PlayPauseButton from "./PlayPause";
 import IPAddress, {DEFAULT_IP_ADDRESS} from "./ipAddress";
+import BPM, {DEFAULT_BPM} from "./bpm";
 
 const StepSequencer = () => {
   const numBeats = 8;
@@ -14,21 +15,63 @@ const StepSequencer = () => {
   ];
 
   const loop = useRef(null);
+  const keys = useRef(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [beatState, setBeatState] = useState([Array(numBeats).fill(false)]);
   const [playerFiles, setPlayerFiles] = useState([soundFiles[0]]);
   const [currentCol, setCurrentCol] = useState(0);
   const [ipAddress, setIPAddress] = useState(DEFAULT_IP_ADDRESS);
+  const [bpm, setBPM] = useState(DEFAULT_BPM);
   
-  const keys = new Players({
-      urls: Object.assign({}, playerFiles), 
-      baseUrl: "https://tonejs.github.io/audio/casio/",
-      fadeOut: "64n",
-      onload: () => {
-        setIsLoaded(true);
-      }
-    },
-  ).toDestination();
+  // const keys = new Players({
+  //     urls: Object.assign({}, playerFiles), 
+  //     baseUrl: "https://tonejs.github.io/audio/casio/",
+  //     fadeOut: "64n",
+  //     onload: () => {
+  //       setIsLoaded(true);
+  //     }
+  //   },
+  // ).toDestination();
+
+  const extractColumn = (arr, column) => arr.map(x => x[column]);
+
+  const sendColumnData = useCallback((col) => {
+    const binaryColumnData = extractColumn(beatState, col).map(noteState => noteState ? '1' : '0').join('');
+    fetch(`http://${ipAddress}/${binaryColumnData}`, {
+      mode: 'no-cors',
+    }).catch((error) => console.log(error));
+  }, [ipAddress, beatState]);
+
+  const play = () => {
+    Transport.start();
+  };
+
+  const stop = () => {
+    Transport.stop();
+  };
+
+  const noteClick = (e) => {
+    const {col, row} = e.target.dataset;
+    const noteState = beatState[row][col];
+    const newBeatState = cloneDeep(beatState);
+    newBeatState[row][col] = !noteState;
+    setBeatState(newBeatState)
+  };
+
+  const addTrack = () => {
+    const newBeatState = cloneDeep(beatState);
+    const newPlayerFiles = cloneDeep(playerFiles);
+    setBeatState([...newBeatState, Array(numBeats).fill(false)])
+    setPlayerFiles([...newPlayerFiles, soundFiles[Math.floor(Math.random() * soundFiles.length)]]);
+  };
+
+  const onChangeIPAddress = (e) => {
+    setIPAddress(e.target.value);
+  };
+
+  const onChangeBPM = (e) => {
+    setBPM(e.target.value);
+  };
 
   useEffect(() => {
     if (loop.current) {
@@ -40,54 +83,39 @@ const StepSequencer = () => {
       setCurrentCol(col);
       beatState.map((track, row) => {
         if (track[col]) {
-          try {
-            keys.player(row).start(time, 0, "8n");
-          } catch {}
+          keys.current.player(row).start(time, 0, "8n");
         }
+        return null;
       });
     }, [...new Array(numBeats)].map((_, i) => i), '8n').start(0);
-  }, [keys, beatState]);
+  }, [keys, beatState, sendColumnData]);
 
-  const extractColumn = (arr, column) => arr.map(x => x[column]);
+  useEffect(() => {
+    Transport.bpm.value = bpm;
+  }, [bpm]);
 
-  const sendColumnData = (col) => {
-    const binaryColumnData = extractColumn(beatState, col).map(noteState => noteState ? '1' : '0').join('');
-    fetch(`http://${ipAddress}/${binaryColumnData}`, {
-      mode: 'no-cors',
-    }).catch((error) => console.log(error));
-  }
+  useEffect(() => {
+    console.log("RUNNING");
+    if (keys.current) {
+      keys.current.dispose();
+    }
 
-  const play = () => {
-    Transport.start();
-  }
-
-  const stop = () => {
-    Transport.stop();
-  }
-
-  const noteClick = (e) => {
-    const {col, row} = e.target.dataset;
-    const noteState = beatState[row][col];
-    const newBeatState = cloneDeep(beatState);
-    newBeatState[row][col] = !noteState;
-    setBeatState(newBeatState)
-  }
-
-  const addTrack = () => {
-    const newBeatState = cloneDeep(beatState);
-    const newPlayerFiles = cloneDeep(playerFiles);
-    setBeatState([...newBeatState, Array(numBeats).fill(false)])
-    setPlayerFiles([...newPlayerFiles, soundFiles[Math.floor(Math.random() * soundFiles.length)]]);
-  }
-
-  const onChangeIPAddress = (e) => {
-    setIPAddress(e.target.value);
-  } 
+    keys.current = new Players({
+        urls: Object.assign({}, playerFiles), 
+        baseUrl: "https://tonejs.github.io/audio/casio/",
+        fadeOut: "64n",
+        onload: () => {
+          setIsLoaded(true);
+        }
+      },
+    ).toDestination();
+  }, [playerFiles]);
 
   return (
     <div>
       <StepSequencer.ButtonControls>
         <PlayPauseButton disabled={!isLoaded} play={play} stop={stop} />
+        <BPM onChangeBPM={onChangeBPM} />
         <IPAddress onChangeAddress={onChangeIPAddress} />
       </StepSequencer.ButtonControls>
       <div>
@@ -130,7 +158,7 @@ StepSequencer.ColumnIndex = styled.span`
 
 StepSequencer.ButtonControls = styled.div`
   display: flex;
-  button {
+  button, input {
     margin-right: 0.5rem;
   }
 `;
