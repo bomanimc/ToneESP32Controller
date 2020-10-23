@@ -6,6 +6,8 @@ import SequencerTrack from './sequencerTrack';
 import PlayPauseButton from "./PlayPause";
 import IPAddress from "./ipAddress";
 
+const BASE_IP_ADDRESS = 'http://192.168.1.184';
+
 const StepSequencer = () => {
   const numBeats = 8;
   const soundFiles = [
@@ -30,7 +32,6 @@ const StepSequencer = () => {
   ).toDestination();
 
   useEffect(() => {
-    console.log(beatState);
     if (loop.current) {
       loop.current.dispose();
     }
@@ -49,8 +50,9 @@ const StepSequencer = () => {
   const extractColumn = (arr, column) => arr.map(x => x[column]);
 
   const sendColumnData = (col) => {
-    console.log('Col', col);
-    console.log('Extract Col', extractColumn(beatState, col));
+    const binaryColumnData = extractColumn(beatState, col).map(noteState => noteState ? '1' : '0').join('');
+    console.log('Data Acc', binaryColumnData);
+    fetch(`${BASE_IP_ADDRESS}/${binaryColumnData}`).catch((error) => console.log(error));
   }
 
   const play = () => {
