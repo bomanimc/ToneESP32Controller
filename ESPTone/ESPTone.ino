@@ -22,9 +22,6 @@ void setup() {
 
   delay(10);
 
-  // We start by connecting to a WiFi network
-
-  // Configures static IP address
   if (!WiFi.config(local_IP, gateway, subnet)) {
     Serial.println("STA Failed to configure");
   }
@@ -47,7 +44,7 @@ void setup() {
 }
 
 void loop() {
-  WiFiClient client = server.available();   // listen for incoming clients
+  WiFiClient client = server.available();
   
   if (client) {
     Serial.println("New Client.");
@@ -90,12 +87,13 @@ void printStates(String currentLine) {
   for (int i = 0; i < sizeof(pins) / sizeof(int); i++) {
     while(!isDigit(inputStr.charAt(stateIndex)) && stateIndex < inputStr.length()) {
       stateIndex++;
-      Serial.print("State Index: ");
-      Serial.println(stateIndex);
     }
     
     int digitalValue = inputStr[stateIndex] - '0';
     if (digitalValue == 1 || digitalValue == 0) {
+      Serial.print(pins[i]);
+      Serial.print(": ");
+      Serial.println(digitalValue);
       digitalWrite(pins[i], digitalValue);
     } else {
       digitalWrite(pins[i], LOW);
