@@ -41,7 +41,9 @@ const StepSequencer = () => {
       setCurrentCol(col);
       beatState.map((track, row) => {
         if (track[col]) {
-          keys.player(row).start(Time(), 0, "16t", 0);
+          try {
+            keys.player(row).start(time, 0, "8n");
+          } catch {}
         }
       });
     }, [...new Array(numBeats)].map((_, i) => i), '8n').start(0);
