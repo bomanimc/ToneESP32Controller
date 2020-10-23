@@ -64,12 +64,12 @@ void loop() {
             client.println();
             break;
           } 
-          else {    // if you got a newline, then clear currentLine:
+          else {
             printStates(currentLine);
             currentLine = "";
           }
-        } else if (c != '\r') {  // if you got anything else but a carriage return character,
-          currentLine += c;      // add it to the end of the currentLine
+        } else if (c != '\r') {
+          currentLine += c;
         }
       }
     }
@@ -85,17 +85,22 @@ void printStates(String currentLine) {
     return;
   }
 
-  int pinIndex = 0;
   String inputStr = currentLine.substring(0, currentLine.length() - NUM_REMOVE_FROM_LINE);
-  for (int i = 0; i < inputStr.length(); i++) {
-    if (isDigit(inputStr.charAt(i))) {
-      int digitalValue = inputStr[i] - '0';
-      Serial.println(digitalValue);
-      if (pinIndex < sizeof(pins)) {
-        Serial.println(pins[pinIndex]);
-        digitalWrite(pins[pinIndex], digitalValue);
-      }
-      pinIndex++;
+  int stateIndex = 0;
+  for (int i = 0; i < sizeof(pins) / sizeof(int); i++) {
+    while(!isDigit(inputStr.charAt(stateIndex)) && stateIndex < inputStr.length()) {
+      stateIndex++;
+      Serial.print("State Index: ");
+      Serial.println(stateIndex);
     }
+    
+    int digitalValue = inputStr[stateIndex] - '0';
+    if (digitalValue == 1 || digitalValue == 0) {
+      digitalWrite(pins[i], digitalValue);
+    } else {
+      digitalWrite(pins[i], LOW);
+    }
+    
+    stateIndex++;
   }
 }
