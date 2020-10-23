@@ -1,9 +1,17 @@
 import React from "react";
 import styled from 'styled-components';
 
-const IPAddress = () => {
+export const DEFAULT_IP_ADDRESS = '192.168.1.184';
+
+const IPAddress = ({onChangeAddress}) => {
   return (
-    <IPAddress.Input type="text" autocomplete="off" placeholder="Enter here" />
+    <IPAddress.Input 
+      type="text" 
+      autocomplete="off" 
+      placeholder="Enter here"
+      defaultValue={DEFAULT_IP_ADDRESS}
+      onChange={onChangeAddress} 
+    />
   )
 };
 

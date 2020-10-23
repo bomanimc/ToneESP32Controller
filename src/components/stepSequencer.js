@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from 'styled-components';
-import { Transport, Time, Players, Sequence } from "tone";
+import { Transport, Players, Sequence } from "tone";
 import cloneDeep from 'lodash/cloneDeep';
 import SequencerTrack from './sequencerTrack';
 import PlayPauseButton from "./PlayPause";
-import IPAddress from "./ipAddress";
-
-const BASE_IP_ADDRESS = 'http://192.168.1.184';
+import IPAddress, {DEFAULT_IP_ADDRESS} from "./ipAddress";
 
 const StepSequencer = () => {
   const numBeats = 8;
@@ -20,6 +18,7 @@ const StepSequencer = () => {
   const [beatState, setBeatState] = useState([Array(numBeats).fill(false)]);
   const [playerFiles, setPlayerFiles] = useState([soundFiles[0]]);
   const [currentCol, setCurrentCol] = useState(0);
+  const [ipAddress, setIPAddress] = useState(DEFAULT_IP_ADDRESS);
   
   const keys = new Players({
       urls: Object.assign({}, playerFiles), 
@@ -53,8 +52,9 @@ const StepSequencer = () => {
 
   const sendColumnData = (col) => {
     const binaryColumnData = extractColumn(beatState, col).map(noteState => noteState ? '1' : '0').join('');
-    console.log('Data Acc', binaryColumnData);
-    fetch(`${BASE_IP_ADDRESS}/${binaryColumnData}`).catch((error) => console.log(error));
+    fetch(`http://${ipAddress}/${binaryColumnData}`, {
+      mode: 'no-cors',
+    }).catch((error) => console.log(error));
   }
 
   const play = () => {
@@ -80,11 +80,15 @@ const StepSequencer = () => {
     setPlayerFiles([...newPlayerFiles, soundFiles[Math.floor(Math.random() * soundFiles.length)]]);
   }
 
+  const onChangeIPAddress = (e) => {
+    setIPAddress(e.target.value);
+  } 
+
   return (
     <div>
       <StepSequencer.ButtonControls>
         <PlayPauseButton disabled={!isLoaded} play={play} stop={stop} />
-        <IPAddress/>
+        <IPAddress onChangeAddress={onChangeIPAddress} />
       </StepSequencer.ButtonControls>
       <div>
         <StepSequencer.BeatGrid>
