@@ -29,9 +29,19 @@ const StepSequencer = () => {
 
   const sendColumnData = useCallback((col) => {
     const binaryColumnData = extractColumn(beatState, col).map(noteState => noteState ? '1' : '0').join('');
-    fetch(`http://${ipAddress}/${binaryColumnData}`, {
-      mode: 'no-cors',
-    }).catch((error) => console.log(error));
+    
+    // fetch(`http://${ipAddress}/${binaryColumnData}`, {
+    //   mode: 'no-cors',
+    // }).catch((error) => console.log(error));
+
+    fetch('/.netlify/functions/microcontroller', {
+      method: 'post',
+      body: JSON.stringify({
+        ipAddress,
+        binaryColumnData,
+      }),
+    })
+      .catch((error) => console.log(error));
   }, [ipAddress, beatState]);
 
   const play = () => {
