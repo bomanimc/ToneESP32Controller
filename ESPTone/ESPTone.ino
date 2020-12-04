@@ -6,7 +6,7 @@ const int pins[] = {13, 12, 27, 33, 15, 32, 14, 22, 23};
 const char* ssid = "MyAltice ff1637";
 const char* password = "82-orchid-5366";
 
-WiFiServer server(80);
+WiFiServer server(8080);
 
 // Set your Static IP address
 IPAddress local_IP(192, 168, 1, 184);
@@ -39,8 +39,12 @@ void setup() {
   Serial.println("\nWiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-  
+
+//  Bridge.begin();
   server.begin();
+
+  Serial.println("Public IP Address");
+//  getExternalIP();
 }
 
 void loop() {
