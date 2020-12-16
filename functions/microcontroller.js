@@ -7,10 +7,6 @@ exports.handler = async function(event) {
   axios.get(`http://${ipAddress}/${binaryColumnData}`)
     .catch((error) => console.log(error));
 
-  // fetch(`http://${ipAddress}/${binaryColumnData}`, {
-  //   mode: 'no-cors',
-  // }).catch((error) => console.log(error));
-
   return {
     statusCode: 200,
   };
