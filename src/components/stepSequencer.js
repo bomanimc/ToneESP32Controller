@@ -174,7 +174,7 @@ StepSequencer.ColumnIndex = styled.span`
 
 StepSequencer.ButtonControls = styled.div`
   display: flex;
-  button, input {
+  > * {
     margin-right: 0.5rem;
   }
 `;
