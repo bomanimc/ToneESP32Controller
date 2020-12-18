@@ -1,10 +1,17 @@
 import React from "react";
 import styled from 'styled-components';
 
-const SequencerTrack = ({track, row, noteClick, numBeats, currentCol}) => {
+const SequencerTrack = ({track, row, noteClick, numBeats, currentCol, onDeleteTrack}) => {
+  const onDelete = (row) => {
+    onDeleteTrack(row);
+  };
+
   return (
     <SequencerTrack.Container>
-      <SequencerTrack.Title>Test</SequencerTrack.Title>
+      <SequencerTrack.MetaActions>
+        <SequencerTrack.Title>{`Track ${row}`}</SequencerTrack.Title>
+        <SequencerTrack.Delete onClick={onDelete}>Delete</SequencerTrack.Delete>
+      </SequencerTrack.MetaActions>
       <SequencerTrack.NoteArea numCols={numBeats}>
         {track.map((isSelected, idx) => (
           <SequencerTrack.Note
@@ -26,9 +33,20 @@ SequencerTrack.Container = styled.div`
   align-items: center;
 `;
 
+SequencerTrack.MetaActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 8rem;
+`;
+
 SequencerTrack.Title = styled.div`
   padding: 1rem;
-  display: none;
+`;
+
+SequencerTrack.Delete = styled.button`
+
 `;
 
 SequencerTrack.NoteArea = styled.div`

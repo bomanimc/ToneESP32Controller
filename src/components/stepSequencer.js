@@ -54,8 +54,14 @@ const StepSequencer = () => {
   const addTrack = () => {
     const newBeatState = cloneDeep(beatState);
     const newPlayerFiles = cloneDeep(playerFiles);
-    setBeatState([...newBeatState, Array(numBeats).fill(false)])
+    setBeatState([...newBeatState, Array(numBeats).fill(false)]);
     setPlayerFiles([...newPlayerFiles, soundFiles[(playerFiles.length + 1) % soundFiles.length]]);
+  };
+
+  const deleteTrack = (trackIdx) => {
+    const newBeatState = cloneDeep(beatState);
+    newBeatState.splice(trackIdx, 1);
+    setBeatState(newBeatState);
   };
 
   const onChangeIPAddress = (e) => {
@@ -122,7 +128,15 @@ const StepSequencer = () => {
           </StepSequencer.ColumnIndices>
           {
             beatState.map((track, trackIdx) => (
-              <SequencerTrack key={trackIdx} track={track} row={trackIdx} noteClick={noteClick} numBeats={numBeats} currentCol={currentCol} />
+              <SequencerTrack
+                key={trackIdx}
+                track={track}
+                row={trackIdx}
+                noteClick={noteClick}
+                numBeats={numBeats}
+                currentCol={currentCol}
+                onDeleteTrack={deleteTrack}
+              />
             ))
           }
         </StepSequencer.BeatGrid>
@@ -147,6 +161,7 @@ StepSequencer.ColumnIndices = styled.div`
   grid-gap: 1rem;
   padding: 0.25rem 0.5rem;
   border-bottom: 2px solid white;
+  justify-content: end;
 `;
 
 StepSequencer.ColumnIndex = styled.span`
