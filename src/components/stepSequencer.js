@@ -81,7 +81,9 @@ const StepSequencer = () => {
   };
 
   useEffect(() => {
-    const newBeatState = beatState.map(track => track.slice(0, beatCount));
+    const newBeatState = beatCount > beatState[0].length
+      ? beatState.map(track => [...track, false])
+      : beatState.map(track => track.slice(0, beatCount));
     setBeatState(newBeatState);
   }, [beatCount]);
 
