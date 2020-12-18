@@ -2,9 +2,7 @@ import React from "react";
 import styled from 'styled-components';
 
 const SequencerTrack = ({track, row, noteClick, numBeats, currentCol, onDeleteTrack}) => {
-  const onDelete = (row) => {
-    onDeleteTrack(row);
-  };
+  const onDelete = () => onDeleteTrack(row);
 
   return (
     <SequencerTrack.Container>

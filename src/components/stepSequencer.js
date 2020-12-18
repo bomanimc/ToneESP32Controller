@@ -60,8 +60,11 @@ const StepSequencer = () => {
 
   const deleteTrack = (trackIdx) => {
     const newBeatState = cloneDeep(beatState);
+    const newPlayerFiles = cloneDeep(playerFiles);
     newBeatState.splice(trackIdx, 1);
+    newPlayerFiles.splice(trackIdx, 1);
     setBeatState(newBeatState);
+    setPlayerFiles(newPlayerFiles);
   };
 
   const onChangeIPAddress = (e) => {
