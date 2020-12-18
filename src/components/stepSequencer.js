@@ -6,9 +6,9 @@ import SequencerTrack from './sequencerTrack';
 import PlayPauseButton from "./PlayPause";
 import IPAddress, {DEFAULT_IP_ADDRESS} from "./ipAddress";
 import BPM, {DEFAULT_BPM} from "./bpm";
+import BeatCount, {DEFAULT_BEAT_COUNT} from "./beatCount";
 
 const StepSequencer = () => {
-  const numBeats = 8;
   const soundFiles = [
     "B1.mp3",
     "C2.mp3",
@@ -19,11 +19,12 @@ const StepSequencer = () => {
   const loop = useRef(null);
   const keys = useRef(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [beatState, setBeatState] = useState([Array(numBeats).fill(false)]);
+  const [beatState, setBeatState] = useState([Array(DEFAULT_BEAT_COUNT).fill(false)]);
   const [playerFiles, setPlayerFiles] = useState([soundFiles[0]]);
   const [currentCol, setCurrentCol] = useState(0);
   const [ipAddress, setIPAddress] = useState(DEFAULT_IP_ADDRESS);
   const [bpm, setBPM] = useState(DEFAULT_BPM);
+  const [beatCount, setBeatCount] = useState(DEFAULT_BEAT_COUNT);
   
   const extractColumn = (arr, column) => arr.map(x => x[column]);
 
@@ -54,7 +55,7 @@ const StepSequencer = () => {
   const addTrack = () => {
     const newBeatState = cloneDeep(beatState);
     const newPlayerFiles = cloneDeep(playerFiles);
-    setBeatState([...newBeatState, Array(numBeats).fill(false)]);
+    setBeatState([...newBeatState, Array(beatCount).fill(false)]);
     setPlayerFiles([...newPlayerFiles, soundFiles[(playerFiles.length + 1) % soundFiles.length]]);
   };
 
@@ -72,8 +73,17 @@ const StepSequencer = () => {
   };
 
   const onChangeBPM = (e) => {
-    setBPM(e.target.value);
+    setBPM(Number(e.target.value));
   };
+
+  const onChangeBeatCount = (e) => {
+    setBeatCount(Number(e.target.value));
+  };
+
+  useEffect(() => {
+    const newBeatState = beatState.map(track => track.slice(0, beatCount));
+    setBeatState(newBeatState);
+  }, [beatCount]);
 
   useEffect(() => {
     if (loop.current) {
@@ -94,8 +104,8 @@ const StepSequencer = () => {
         }
         return null;
       });
-    }, [...new Array(numBeats)].map((_, i) => i), '8n').start(0);
-  }, [keys, beatState, sendColumnData]);
+    }, [...new Array(beatCount)].map((_, i) => i), '8n').start(0);
+  }, [keys, beatState, beatCount, sendColumnData]);
 
   useEffect(() => {
     Transport.bpm.value = bpm;
@@ -122,12 +132,13 @@ const StepSequencer = () => {
       <StepSequencer.ButtonControls>
         <PlayPauseButton disabled={!isLoaded} play={play} stop={stop} />
         <BPM onChangeBPM={onChangeBPM} />
+        <BeatCount onChangeBeatCount={onChangeBeatCount} />
         <IPAddress onChangeAddress={onChangeIPAddress} />
       </StepSequencer.ButtonControls>
       <div>
         <StepSequencer.BeatGrid>
-          <StepSequencer.ColumnIndices numCols={numBeats}>
-            {Array(numBeats).fill(false).map((_, idx) => <StepSequencer.ColumnIndex>{idx}</StepSequencer.ColumnIndex>)}
+          <StepSequencer.ColumnIndices numCols={beatCount}>
+            {Array(beatCount).fill(false).map((_, idx) => <StepSequencer.ColumnIndex>{idx + 1}</StepSequencer.ColumnIndex>)}
           </StepSequencer.ColumnIndices>
           {
             beatState.map((track, trackIdx) => (
@@ -136,7 +147,7 @@ const StepSequencer = () => {
                 track={track}
                 row={trackIdx}
                 noteClick={noteClick}
-                numBeats={numBeats}
+                numBeats={beatCount}
                 currentCol={currentCol}
                 onDeleteTrack={deleteTrack}
                 canDelete={beatState.length > 1}
