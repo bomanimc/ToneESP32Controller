@@ -1,10 +1,21 @@
 import React from "react";
 import styled from 'styled-components';
+import Remove from '../assets/remove.svg';
 
-const SequencerTrack = ({track, row, noteClick, numBeats, currentCol}) => {
+const SequencerTrack = ({track, row, noteClick, numBeats, currentCol, canDelete, onDeleteTrack}) => {
+  const onDelete = () => onDeleteTrack(row);
+
   return (
     <SequencerTrack.Container>
-      <SequencerTrack.Title>Test</SequencerTrack.Title>
+      <SequencerTrack.MetaActions>
+        <SequencerTrack.Title 
+          type="text" 
+          autocomplete="off" 
+          placeholder={`Track ${row}`}
+          defaultValue={`Track ${row}`}
+        />
+        {canDelete && <SequencerTrack.Delete onClick={onDelete}><Remove /></SequencerTrack.Delete>}
+      </SequencerTrack.MetaActions>
       <SequencerTrack.NoteArea numCols={numBeats}>
         {track.map((isSelected, idx) => (
           <SequencerTrack.Note
@@ -26,9 +37,42 @@ SequencerTrack.Container = styled.div`
   align-items: center;
 `;
 
-SequencerTrack.Title = styled.div`
-  padding: 1rem;
-  display: none;
+SequencerTrack.MetaActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 8rem;
+  overflow: hidden;
+`;
+
+SequencerTrack.Title = styled.input`
+  color: white;
+  background: transparent;
+  outline: none;
+  padding: 0.5rem;
+  font-size: 1rem;
+  text-align: center;
+  border: none;
+  box-sizing: border-box;
+  width: 100%;
+`;
+
+SequencerTrack.Delete = styled.button`
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  
+  svg {
+    fill: white;
+    transition: transform 0.1s ease;
+  }
+
+  &:hover {
+    svg {
+      transform: scale(1.1);
+    }
+  }
 `;
 
 SequencerTrack.NoteArea = styled.div`

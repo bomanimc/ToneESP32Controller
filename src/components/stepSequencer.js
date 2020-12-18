@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import styled from 'styled-components';
-import { Transport, Players, Sequence } from "tone";
+import { Transport, Players, Sequence, Destination } from "tone";
 import cloneDeep from 'lodash/cloneDeep';
 import SequencerTrack from './sequencerTrack';
 import PlayPauseButton from "./PlayPause";
 import IPAddress, {DEFAULT_IP_ADDRESS} from "./ipAddress";
 import BPM, {DEFAULT_BPM} from "./bpm";
+import BeatCount, {DEFAULT_BEAT_COUNT} from "./beatCount";
+import Mute from "./Mute";
 
 const StepSequencer = () => {
-  const numBeats = 8;
   const soundFiles = [
     "B1.mp3",
     "C2.mp3",
@@ -19,29 +20,22 @@ const StepSequencer = () => {
   const loop = useRef(null);
   const keys = useRef(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [beatState, setBeatState] = useState([Array(numBeats).fill(false)]);
+  const [beatState, setBeatState] = useState([Array(DEFAULT_BEAT_COUNT).fill(false)]);
   const [playerFiles, setPlayerFiles] = useState([soundFiles[0]]);
   const [currentCol, setCurrentCol] = useState(0);
   const [ipAddress, setIPAddress] = useState(DEFAULT_IP_ADDRESS);
   const [bpm, setBPM] = useState(DEFAULT_BPM);
+  const [beatCount, setBeatCount] = useState(DEFAULT_BEAT_COUNT);
+  const [isMuted, setIsMuted] = useState(false);
   
   const extractColumn = (arr, column) => arr.map(x => x[column]);
 
   const sendColumnData = useCallback((col) => {
     const binaryColumnData = extractColumn(beatState, col).map(noteState => noteState ? '1' : '0').join('');
     
-    // fetch(`http://${ipAddress}/${binaryColumnData}`, {
-    //   mode: 'no-cors',
-    // }).catch((error) => console.log(error));
-
-    fetch('/.netlify/functions/microcontroller', {
-      method: 'post',
-      body: JSON.stringify({
-        ipAddress,
-        binaryColumnData,
-      }),
-    })
-      .catch((error) => console.log(error));
+    fetch(`http://${ipAddress}/${binaryColumnData}`, {
+      mode: 'no-cors',
+    }).catch((error) => console.log(error));
   }, [ipAddress, beatState]);
 
   const play = () => {
@@ -63,8 +57,17 @@ const StepSequencer = () => {
   const addTrack = () => {
     const newBeatState = cloneDeep(beatState);
     const newPlayerFiles = cloneDeep(playerFiles);
-    setBeatState([...newBeatState, Array(numBeats).fill(false)])
+    setBeatState([...newBeatState, Array(beatCount).fill(false)]);
     setPlayerFiles([...newPlayerFiles, soundFiles[(playerFiles.length + 1) % soundFiles.length]]);
+  };
+
+  const deleteTrack = (trackIdx) => {
+    const newBeatState = cloneDeep(beatState);
+    const newPlayerFiles = cloneDeep(playerFiles);
+    newBeatState.splice(trackIdx, 1);
+    newPlayerFiles.splice(trackIdx, 1);
+    setBeatState(newBeatState);
+    setPlayerFiles(newPlayerFiles);
   };
 
   const onChangeIPAddress = (e) => {
@@ -72,8 +75,27 @@ const StepSequencer = () => {
   };
 
   const onChangeBPM = (e) => {
-    setBPM(e.target.value);
+    setBPM(Number(e.target.value));
   };
+
+  const onChangeBeatCount = (e) => {
+    setBeatCount(Number(e.target.value));
+  };
+
+  const onToggleMuted = () => {
+    setIsMuted(!isMuted);
+  }
+
+  useEffect(() => {
+    Destination.mute = isMuted;
+  }, [isMuted]);
+
+  useEffect(() => {
+    const newBeatState = beatCount > beatState[0].length
+      ? beatState.map(track => [...track, false])
+      : beatState.map(track => track.slice(0, beatCount));
+    setBeatState(newBeatState);
+  }, [beatCount]);
 
   useEffect(() => {
     if (loop.current) {
@@ -94,8 +116,8 @@ const StepSequencer = () => {
         }
         return null;
       });
-    }, [...new Array(numBeats)].map((_, i) => i), '8n').start(0);
-  }, [keys, beatState, sendColumnData]);
+    }, [...new Array(beatCount)].map((_, i) => i), '8n').start(0);
+  }, [keys, beatState, beatCount, sendColumnData]);
 
   useEffect(() => {
     Transport.bpm.value = bpm;
@@ -121,17 +143,28 @@ const StepSequencer = () => {
     <div>
       <StepSequencer.ButtonControls>
         <PlayPauseButton disabled={!isLoaded} play={play} stop={stop} />
+        <Mute toggleMute={onToggleMuted} isMuted={isMuted} />
         <BPM onChangeBPM={onChangeBPM} />
+        <BeatCount onChangeBeatCount={onChangeBeatCount} />
         <IPAddress onChangeAddress={onChangeIPAddress} />
       </StepSequencer.ButtonControls>
       <div>
         <StepSequencer.BeatGrid>
-          <StepSequencer.ColumnIndices numCols={numBeats}>
-            {Array(numBeats).fill(false).map((_, idx) => <StepSequencer.ColumnIndex>{idx}</StepSequencer.ColumnIndex>)}
+          <StepSequencer.ColumnIndices numCols={beatCount}>
+            {Array(beatCount).fill(false).map((_, idx) => <StepSequencer.ColumnIndex>{idx + 1}</StepSequencer.ColumnIndex>)}
           </StepSequencer.ColumnIndices>
           {
             beatState.map((track, trackIdx) => (
-              <SequencerTrack key={trackIdx} track={track} row={trackIdx} noteClick={noteClick} numBeats={numBeats} currentCol={currentCol} />
+              <SequencerTrack
+                key={trackIdx}
+                track={track}
+                row={trackIdx}
+                noteClick={noteClick}
+                numBeats={beatCount}
+                currentCol={currentCol}
+                onDeleteTrack={deleteTrack}
+                canDelete={beatState.length > 1}
+              />
             ))
           }
         </StepSequencer.BeatGrid>
@@ -156,6 +189,7 @@ StepSequencer.ColumnIndices = styled.div`
   grid-gap: 1rem;
   padding: 0.25rem 0.5rem;
   border-bottom: 2px solid white;
+  justify-content: end;
 `;
 
 StepSequencer.ColumnIndex = styled.span`
@@ -164,7 +198,7 @@ StepSequencer.ColumnIndex = styled.span`
 
 StepSequencer.ButtonControls = styled.div`
   display: flex;
-  button, input {
+  > * {
     margin-right: 0.5rem;
   }
 `;

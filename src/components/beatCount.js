@@ -2,24 +2,24 @@ import React from "react";
 import styled from 'styled-components';
 import ControlTitle from './controlTitle';
 
-export const DEFAULT_BPM = 70;
+export const DEFAULT_BEAT_COUNT = 8;
 
-const BPM = ({onChangeBPM}) => {
+const BeatCount = ({onChangeBeatCount}) => {
   return (
-    <BPM.Container>
-      <BPM.Input
+    <BeatCount.Container>
+      <BeatCount.Input
         type="number"
         autocomplete="off"
-        placeholder="Enter BPM here"
-        defaultValue={DEFAULT_BPM}
-        onChange={onChangeBPM}
+        placeholder="Enter beat count here"
+        defaultValue={DEFAULT_BEAT_COUNT}
+        onChange={onChangeBeatCount}
       />
-      <ControlTitle>BPM</ControlTitle>
-    </BPM.Container>
+      <ControlTitle>Beat Count</ControlTitle>
+    </BeatCount.Container>
   )
 };
 
-BPM.Container = styled.div`
+BeatCount.Container = styled.div`
   display: flex;
   border: 2px solid white;
   border-radius: 0.5rem;
@@ -29,7 +29,7 @@ BPM.Container = styled.div`
   justify-content: center;
 `;
 
-BPM.Input = styled.input`
+BeatCount.Input = styled.input`
   display: flex;
   color: white;
   background: transparent;
@@ -41,4 +41,4 @@ BPM.Input = styled.input`
   border: none;
 `;
 
-export default BPM;
+export default BeatCount;
