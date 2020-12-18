@@ -1,5 +1,6 @@
 import React from "react";
 import styled from 'styled-components';
+import Remove from '../assets/remove.svg';
 
 const SequencerTrack = ({track, row, noteClick, numBeats, currentCol, onDeleteTrack}) => {
   const onDelete = () => onDeleteTrack(row);
@@ -8,7 +9,7 @@ const SequencerTrack = ({track, row, noteClick, numBeats, currentCol, onDeleteTr
     <SequencerTrack.Container>
       <SequencerTrack.MetaActions>
         <SequencerTrack.Title>{`Track ${row}`}</SequencerTrack.Title>
-        <SequencerTrack.Delete onClick={onDelete}>Delete</SequencerTrack.Delete>
+        <SequencerTrack.Delete onClick={onDelete}><Remove /></SequencerTrack.Delete>
       </SequencerTrack.MetaActions>
       <SequencerTrack.NoteArea numCols={numBeats}>
         {track.map((isSelected, idx) => (
@@ -40,11 +41,24 @@ SequencerTrack.MetaActions = styled.div`
 `;
 
 SequencerTrack.Title = styled.div`
-  padding: 1rem;
+  padding: 0.5rem;
 `;
 
 SequencerTrack.Delete = styled.button`
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  
+  svg {
+    fill: white;
+    transition: transform 0.1s ease;
+  }
 
+  &:hover {
+    svg {
+      transform: scale(1.1);
+    }
+  }
 `;
 
 SequencerTrack.NoteArea = styled.div`
