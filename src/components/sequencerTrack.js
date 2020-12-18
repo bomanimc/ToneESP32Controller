@@ -8,7 +8,12 @@ const SequencerTrack = ({track, row, noteClick, numBeats, currentCol, canDelete,
   return (
     <SequencerTrack.Container>
       <SequencerTrack.MetaActions>
-        <SequencerTrack.Title>{`Track ${row}`}</SequencerTrack.Title>
+        <SequencerTrack.Title 
+          type="text" 
+          autocomplete="off" 
+          placeholder={`Track ${row}`}
+          defaultValue={`Track ${row}`}
+        />
         {canDelete && <SequencerTrack.Delete onClick={onDelete}><Remove /></SequencerTrack.Delete>}
       </SequencerTrack.MetaActions>
       <SequencerTrack.NoteArea numCols={numBeats}>
@@ -37,11 +42,20 @@ SequencerTrack.MetaActions = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 8rem;
+  max-width: 8rem;
+  overflow: hidden;
 `;
 
-SequencerTrack.Title = styled.div`
+SequencerTrack.Title = styled.input`
+  color: white;
+  background: transparent;
+  outline: none;
   padding: 0.5rem;
+  font-size: 1rem;
+  text-align: center;
+  border: none;
+  box-sizing: border-box;
+  width: 100%;
 `;
 
 SequencerTrack.Delete = styled.button`
