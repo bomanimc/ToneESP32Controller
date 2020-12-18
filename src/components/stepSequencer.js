@@ -139,6 +139,7 @@ const StepSequencer = () => {
                 numBeats={numBeats}
                 currentCol={currentCol}
                 onDeleteTrack={deleteTrack}
+                canDelete={beatState.length > 1}
               />
             ))
           }

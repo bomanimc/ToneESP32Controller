@@ -2,14 +2,14 @@ import React from "react";
 import styled from 'styled-components';
 import Remove from '../assets/remove.svg';
 
-const SequencerTrack = ({track, row, noteClick, numBeats, currentCol, onDeleteTrack}) => {
+const SequencerTrack = ({track, row, noteClick, numBeats, currentCol, canDelete, onDeleteTrack}) => {
   const onDelete = () => onDeleteTrack(row);
 
   return (
     <SequencerTrack.Container>
       <SequencerTrack.MetaActions>
         <SequencerTrack.Title>{`Track ${row}`}</SequencerTrack.Title>
-        <SequencerTrack.Delete onClick={onDelete}><Remove /></SequencerTrack.Delete>
+        {canDelete && <SequencerTrack.Delete onClick={onDelete}><Remove /></SequencerTrack.Delete>}
       </SequencerTrack.MetaActions>
       <SequencerTrack.NoteArea numCols={numBeats}>
         {track.map((isSelected, idx) => (
