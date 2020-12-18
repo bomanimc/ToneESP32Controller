@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import styled from 'styled-components';
-import { Transport, Players, Sequence } from "tone";
+import { Transport, Players, Sequence, Destination } from "tone";
 import cloneDeep from 'lodash/cloneDeep';
 import SequencerTrack from './sequencerTrack';
 import PlayPauseButton from "./PlayPause";
 import IPAddress, {DEFAULT_IP_ADDRESS} from "./ipAddress";
 import BPM, {DEFAULT_BPM} from "./bpm";
 import BeatCount, {DEFAULT_BEAT_COUNT} from "./beatCount";
+import Mute from "./Mute";
 
 const StepSequencer = () => {
   const soundFiles = [
@@ -25,6 +26,7 @@ const StepSequencer = () => {
   const [ipAddress, setIPAddress] = useState(DEFAULT_IP_ADDRESS);
   const [bpm, setBPM] = useState(DEFAULT_BPM);
   const [beatCount, setBeatCount] = useState(DEFAULT_BEAT_COUNT);
+  const [isMuted, setIsMuted] = useState(false);
   
   const extractColumn = (arr, column) => arr.map(x => x[column]);
 
@@ -80,6 +82,14 @@ const StepSequencer = () => {
     setBeatCount(Number(e.target.value));
   };
 
+  const onToggleMuted = () => {
+    setIsMuted(!isMuted);
+  }
+
+  useEffect(() => {
+    Destination.mute = isMuted;
+  }, [isMuted]);
+
   useEffect(() => {
     const newBeatState = beatCount > beatState[0].length
       ? beatState.map(track => [...track, false])
@@ -133,6 +143,7 @@ const StepSequencer = () => {
     <div>
       <StepSequencer.ButtonControls>
         <PlayPauseButton disabled={!isLoaded} play={play} stop={stop} />
+        <Mute toggleMute={onToggleMuted} isMuted={isMuted} />
         <BPM onChangeBPM={onChangeBPM} />
         <BeatCount onChangeBeatCount={onChangeBeatCount} />
         <IPAddress onChangeAddress={onChangeIPAddress} />
