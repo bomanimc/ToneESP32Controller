@@ -9,6 +9,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from 'styled-components';
 import { useStaticQuery, graphql } from "gatsby";
+import "fontsource-prompt";
 
 const Layout = ({ children }) => {
   const data = useStaticQuery(graphql`
@@ -34,6 +35,7 @@ Layout.Root = styled.main`
   height: 100vh;
   width: 100%;
   display: flex;
+  font-family: 'Prompt', sans-serif;
 `;
 
 export default Layout
